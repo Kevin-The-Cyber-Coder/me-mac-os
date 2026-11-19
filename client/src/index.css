@@ -189,6 +189,14 @@ body {
     radial-gradient(700px 500px at 50% 110%, rgba(124, 92, 255, 0.25), transparent 60%),
     linear-gradient(160deg, #0a0710, #05060c);
 }
+.wp-macos {
+  background-color: #06113d;
+  background:
+    radial-gradient(1100px 780px at 16% 4%, rgba(89, 184, 255, 0.45), transparent 62%),
+    radial-gradient(1200px 900px at 88% 96%, rgba(196, 107, 255, 0.42), transparent 64%),
+    radial-gradient(900px 640px at 62% 12%, rgba(255, 138, 212, 0.24), transparent 60%),
+    linear-gradient(135deg, #06113d 0%, #123086 34%, #2b2a9b 58%, #4a238f 80%, #6b1f72 100%);
+}
 
 html.light .wp-aurora {
   background:
