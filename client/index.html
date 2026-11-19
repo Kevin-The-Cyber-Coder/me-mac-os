@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#05060c" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Kevin The Cyber Coder — Mukeshimana Kevin</title>
+    <meta
+      name="description"
+      content="Interactive macOS-inspired portfolio of Mukeshimana Kevin — full-stack developer, software engineer and technology innovator building modern digital experiences, intelligent applications and scalable systems."
+    />
+    <meta name="author" content="Mukeshimana Kevin" />
+    <meta
+      name="keywords"
+      content="Mukeshimana Kevin, Kevin The Cyber Coder, full-stack developer, software engineer, MERN, React, Node.js, AI, portfolio"
+    />
+    <link rel="canonical" href="https://kevinthecybercoder.dev/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kevin The Cyber Coder" />
+    <meta property="og:title" content="Kevin The Cyber Coder — Full-Stack Developer & Technology Innovator" />
+    <meta
+      property="og:description"
+      content="Building Tomorrow's Technology, One Innovation at a Time. Explore projects, articles, ARENA AI and the GitHub Command Center."
+    />
+    <meta property="og:url" content="https://kevinthecybercoder.dev/" />
+    <meta property="og:image" content="https://picsum.photos/seed/kevin-og/1200/630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kevin The Cyber Coder — Full-Stack Developer" />
+    <meta
+      name="twitter:description"
+      content="An AI-powered developer operating system by Mukeshimana Kevin."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      ;(() => {
+        try {
+          const stored = JSON.parse(localStorage.getItem('kcp-ui') || '{}')
+          const theme = stored?.state?.theme || 'dark'
+          const resolved =
+            theme === 'system'
+              ? window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark'
+              : theme
+          document.documentElement.classList.remove('light', 'dark')
+          document.documentElement.classList.add(resolved)
+          const accent = stored?.state?.accent
+          const accents = {
+            violet: '#7c5cff',
+            cyan: '#22d3ee',
+            blue: '#3b82f6',
+            emerald: '#34d399',
+            rose: '#fb7185',
+            amber: '#f59e0b',
+          }
+          if (accent && accents[accent]) document.documentElement.style.setProperty('--accent', accents[accent])
+        } catch {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <div style="padding: 40px; font-family: sans-serif; color: #e8ecff; background: #05060c">
+        <h1>Kevin The Cyber Coder</h1>
+        <p>Mukeshimana Kevin — Full-Stack Developer & Technology Innovator.</p>
+        <p>This interactive portfolio requires JavaScript. Please enable it to continue.</p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
