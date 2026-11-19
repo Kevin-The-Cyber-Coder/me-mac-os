@@ -1,5 +1,7 @@
 # Kevin The Cyber Coder — ARENA OS
 
+[![CI](https://github.com/Kevin-The-Cyber-Coder/me-mac-os/actions/workflows/ci.yml/badge.svg)](https://github.com/Kevin-The-Cyber-Coder/me-mac-os/actions/workflows/ci.yml)
+
 An interactive, macOS-inspired portfolio for **Mukeshimana Kevin** (Kevin The Cyber Coder). Instead of a single scrolling page, the public site is a full desktop: a translucent menu bar, a magnifying dock, draggable windows, a command palette and a mobile app grid. Every portfolio section is an app backed by the same API that powers the admin console.
 
 - **Desktop site:** every section opens in its own window (Finder, Projects, Skills, Services, Journal, Gallery, Contact, GitHub, ARENA AI, Terminal, Music, System Settings, Trash).
