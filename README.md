@@ -95,6 +95,23 @@ All configuration lives in `.env` (see `.env.example`). Highlights:
 
 The architecture is documented in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## Desktop documentation
+
+The macOS desktop is documented in detail:
+
+| Guide | Contents |
+| --- | --- |
+| [`docs/DESKTOP.md`](docs/DESKTOP.md) | Layout, icon grid, drag and selection behaviour |
+| [`docs/ICONS.md`](docs/ICONS.md) | Icon system, registries and adding artwork |
+| [`docs/WALLPAPERS.md`](docs/WALLPAPERS.md) | Wallpaper registry, fallbacks and current artwork |
+| [`docs/DOCK.md`](docs/DOCK.md) | Dock items, magnification, glass and running state |
+| [`docs/MENUBAR.md`](docs/MENUBAR.md) | Menus, status items, panels and clock |
+| [`docs/KEYBOARD.md`](docs/KEYBOARD.md) | Every supported shortcut |
+| [`docs/PERSISTENCE.md`](docs/PERSISTENCE.md) | Store keys, migrations and resetting state |
+| [`docs/CONTENT.md`](docs/CONTENT.md) | Collections, admin workflow and deep links |
+| [`docs/TESTING.md`](docs/TESTING.md) | API and end-to-end test coverage |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Build, hosting, environment and release checks |
+
 ## Honest data policy
 
 ARENA AI answers from published records when no provider key is configured, and clearly labels that mode. GitHub analytics display a "data unavailable" state rather than estimates. There are no simulated statistics anywhere in the interface.
