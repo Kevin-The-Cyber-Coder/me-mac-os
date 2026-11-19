@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Portfolio and documentation
+    url: https://kevinthecybercoder.dev/
+    about: Read the desktop guides in docs/ before opening an issue.
+  - name: Security report
+    url: https://github.com/Kevin-The-Cyber-Coder/me-mac-os/security/advisories/new
+    about: Report a vulnerability privately instead of opening a public issue.
