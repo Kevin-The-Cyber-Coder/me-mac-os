@@ -1,0 +1,29 @@
+{
+  "name": "kevin-cyber-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kevin The Cyber Coder — AI-powered macOS-inspired developer portfolio, ARENA AI ecosystem and GitHub Command Center.",
+  "author": "Mukeshimana Kevin",
+  "license": "MIT",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "build": "npm --workspace client run build",
+    "start": "npm --workspace server run start",
+    "seed": "npm --workspace server run seed",
+    "test": "npm --workspace server run test",
+    "test:e2e": "npm --workspace client run test:e2e",
+    "lint": "npm --workspace client run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
