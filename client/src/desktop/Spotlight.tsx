@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react'
 import { ALL_APPS, APPS, type AppId } from './apps'
+import { MAC_ICONS } from './mac-icons'
 import { useLaunch, useOpenPath } from './launch'
 import { useUI } from '../store/ui'
 import { useAuth } from '../store/auth'
@@ -186,7 +187,7 @@ export function Spotlight() {
         label: app.label,
         hint: app.subtitle,
         group: 'Applications',
-        icon: app.icon,
+        icon: MAC_ICONS[app.id] ?? app.icon,
         run: () => launch(app.id as AppId),
       }))
   }, [launch, query])
