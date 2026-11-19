@@ -5,8 +5,6 @@ import {
   BatteryCharging,
   BatteryLow,
   BatteryMedium,
-  Bell,
-  Bluetooth,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -20,45 +18,36 @@ import {
   Info,
   Keyboard,
   Laptop,
-  Link2,
   LogOut,
   Maximize,
   Minimize,
   Monitor,
   Moon,
-  Music2,
-  Pause,
-  Play,
   PlugZap,
   Power,
   RotateCcw,
   Search,
   Settings2,
-  SkipBack,
-  SkipForward,
   SlidersHorizontal,
   Sun,
   Terminal as TerminalIcon,
   Trash2,
   UserRound,
-  Volume2,
-  VolumeX,
   Wifi,
   WifiOff,
   X,
 } from 'lucide-react'
 import { useLaunch } from './launch'
 import { APPS } from './apps'
+import { AppleLogo } from './mac-icons'
 import { useOS } from '../store/os'
 import { useUI, type Theme } from '../store/ui'
 import { useDesktop } from '../store/desktop'
-import { useMusic, useCurrentTrack } from '../store/music'
 import { useAuth } from '../store/auth'
-import { useNotifications } from '../store/notifications'
 import { useSite } from '../store/site'
 import { applyTheme, cn } from '../lib/utils'
 
-type Panel = 'wifi' | 'battery' | 'volume' | 'music' | 'clock' | 'forcequit' | null
+type Panel = 'wifi' | 'battery' | 'clock' | 'forcequit' | null
 
 interface MenuItem {
   label?: string
@@ -98,13 +87,10 @@ export function MenuBar() {
   const cycleWindows = useOS((state) => state.cycleWindows)
   const minimizeAll = useOS((state) => state.minimizeAll)
   const focusWindow = useOS((state) => state.focusWindow)
-  const { theme, setTheme, reduceMotion, setReduceMotion, togglePalette, toggleNotifications, toggleControlCenter, controlCenterOpen, notificationsOpen, toggleGestures } = useUI()
+  const { theme, setTheme, reduceMotion, setReduceMotion, togglePalette, toggleControlCenter, controlCenterOpen, toggleNotifications, toggleGestures } = useUI()
   const { dockAutohide, setDockAutohide, showIcons, setShowIcons, showWidgets, setShowWidgets } = useDesktop()
-  const track = useCurrentTrack()
-  const { playing, volume, muted, toggle, next, prev, setVolume, toggleMute } = useMusic()
   const admin = useAuth((state) => state.admin)
   const logout = useAuth((state) => state.logout)
-  const unread = useNotifications((state) => state.unread)
   const profile = useSite((state) => state.profile)
 
   const [clock, setClock] = useState(new Date())
@@ -272,6 +258,7 @@ export function MenuBar() {
     { label: 'About This Mac', icon: Laptop, action: () => launch('settings', { section: 'about' }) },
     { label: 'System Settings…', icon: Settings2, action: () => launch('settings') },
     { label: 'Welcome to ARENA OS', action: () => launch('welcome') },
+    { label: 'Notification Center', icon: SlidersHorizontal, action: () => toggleNotifications(true) },
     { divider: true },
     { label: 'Force Quit…', hint: '⌥⌘⎋', icon: X, action: () => setPanel('forcequit') },
     { divider: true },
@@ -282,7 +269,9 @@ export function MenuBar() {
       : [{ label: 'Admin Sign In', icon: Command, action: () => window.location.assign('/login') }]),
   ]
 
-  const dateLabel = clock.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  const dateLabel = clock
+    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    .replace(',', '')
   const timeLabel = clock.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
   const batteryIcon = !battery
@@ -313,29 +302,32 @@ export function MenuBar() {
   return (
     <div
       ref={barRef}
-      className="fixed inset-x-0 top-0 z-[120] h-[30px] select-none border-b border-white/[0.08] bg-[color-mix(in_srgb,var(--dock)_92%,transparent)] text-[12px] backdrop-blur-2xl"
+      className="fixed inset-x-0 top-0 z-[120] h-[30px] select-none border-b border-white/[0.08] bg-[#05060c]/45 text-[12px] backdrop-blur-2xl backdrop-saturate-150"
       role="banner"
     >
       <div className="flex h-full items-center gap-0.5 px-2">
         <button
           type="button"
           onClick={() => setOpenMenu(openMenu === 'system' ? null : 'system')}
-          className="mr-0.5 grid h-5 w-5 place-items-center rounded-[5px] bg-[image:linear-gradient(135deg,var(--accent),#22d3ee)] text-[10px] font-bold text-[#05060c] shadow"
-          aria-label="System menu"
+          className={cn(
+            'mr-0.5 grid h-5 w-6 place-items-center rounded-[5px] text-white/90 transition-colors hover:bg-white/[0.14]',
+            openMenu === 'system' && 'bg-white/[0.14]'
+          )}
+          aria-label="Apple menu"
           aria-expanded={openMenu === 'system'}
         >
-          K
+          <AppleLogo className="h-[15px] w-[15px]" />
         </button>
 
         <button
           type="button"
           onClick={() => setOpenMenu(openMenu === 'system' ? null : 'system')}
           className={cn(
-            'rounded px-2 py-[3px] font-semibold text-fg transition-colors hover:bg-white/[0.1]',
+            'rounded px-2 py-[3px] text-[12.5px] font-semibold text-white transition-colors hover:bg-white/[0.1]',
             openMenu === 'system' && 'bg-white/[0.1]'
           )}
         >
-          Kevin
+          {activeApp.label}
         </button>
 
         <div className="flex items-center gap-0.5">
@@ -388,11 +380,6 @@ export function MenuBar() {
               </AnimatePresence>
             </div>
           ))}
-        </div>
-
-        <div className="ml-3 hidden items-center gap-1.5 text-[11.5px] font-semibold text-white/90 md:flex">
-          <activeApp.icon className="h-3.5 w-3.5 opacity-80" />
-          {activeApp.label}
         </div>
 
         <div className="ml-auto flex items-center gap-0.5" onMouseEnter={() => openMenu && setOpenMenu(null)}>
@@ -505,98 +492,6 @@ export function MenuBar() {
             </AnimatePresence>
           </div>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setPanel(panel === 'volume' ? null : 'volume')}
-              className={cn('menubar-status', panel === 'volume' && 'bg-white/[0.16] text-white')}
-              aria-label={muted ? 'Volume muted' : 'Volume'}
-              title="Sound"
-            >
-              {muted || volume === 0 ? <VolumeX className="h-[15px] w-[15px]" /> : <Volume2 className="h-[15px] w-[15px]" />}
-            </button>
-            <AnimatePresence>
-              {panel === 'volume' && (
-                <MenuPanel className="right-0 w-[228px] p-3">
-                  <p className="mb-2 text-[11.5px] font-semibold text-fg">Sound</p>
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={toggleMute} className="text-muted hover:text-fg" aria-label="Mute">
-                      {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                    </button>
-                    <input
-                      type="range"
-                      min={0}
-                      max={1}
-                      step={0.01}
-                      value={muted ? 0 : volume}
-                      onChange={(event) => setVolume(Number(event.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/15 accent-[var(--accent)]"
-                      aria-label="System volume"
-                    />
-                    <span className="w-7 text-right font-mono text-[9.5px] text-[var(--fg-faint)]">
-                      {Math.round((muted ? 0 : volume) * 100)}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-[9.5px] leading-relaxed text-[var(--fg-faint)]">Controls ARENA Sound playback.</p>
-                </MenuPanel>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="relative hidden sm:block">
-            <button
-              type="button"
-              onClick={() => setPanel(panel === 'music' ? null : 'music')}
-              className={cn('menubar-status gap-1', panel === 'music' && 'bg-white/[0.16] text-white')}
-              aria-label="Music controls"
-              title={track?.title || 'Music'}
-            >
-              <Music2 className={cn('h-[15px] w-[15px]', playing && 'text-[var(--accent)]')} />
-              {track && <span className="max-w-[86px] truncate text-[10px] text-white/75">{track.title}</span>}
-            </button>
-            <AnimatePresence>
-              {panel === 'music' && (
-                <MenuPanel className="right-0 w-[282px] p-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-[image:linear-gradient(135deg,var(--accent),#22d3ee)] text-[#05060c]">
-                      <Music2 className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[12px] font-semibold text-fg">{track?.title || 'Nothing playing'}</p>
-                      <p className="truncate text-[10px] text-muted">{track?.artist || 'ARENA Sound'}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-center gap-4">
-                    <button type="button" onClick={prev} className="text-muted hover:text-fg" aria-label="Previous track">
-                      <SkipBack className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={toggle}
-                      className="grid h-8 w-8 place-items-center rounded-full bg-[var(--accent)] text-white"
-                      aria-label={playing ? 'Pause' : 'Play'}
-                    >
-                      {playing ? <Pause className="h-3.5 w-3.5 fill-current" /> : <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />}
-                    </button>
-                    <button type="button" onClick={next} className="text-muted hover:text-fg" aria-label="Next track">
-                      <SkipForward className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPanel(null)
-                      launch('music')
-                    }}
-                    className="mt-3 w-full rounded-md border border-[var(--stroke)] py-1.5 text-[11px] text-fg hover:bg-white/[0.06]"
-                  >
-                    Open Music
-                  </button>
-                </MenuPanel>
-              )}
-            </AnimatePresence>
-          </div>
-
           <button
             type="button"
             onClick={() => toggleControlCenter()}
@@ -618,115 +513,12 @@ export function MenuBar() {
             <Search className="h-[15px] w-[15px]" />
           </button>
 
-          <button
-            type="button"
-            onClick={() => toggleNotifications()}
-            className={cn('menubar-status relative', notificationsOpen && 'bg-white/[0.18] text-white')}
-            aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
-            title="Notification Center"
-          >
-            <Bell className="h-[15px] w-[15px]" />
-            {unread > 0 && (
-              <span className="absolute right-0 top-0.5 grid h-2.5 min-w-2.5 place-items-center rounded-full bg-rose-500 px-0.5 text-[7px] font-bold text-white">
-                {unread > 9 ? '9' : unread}
-              </span>
-            )}
-          </button>
-
-          <div className="relative hidden md:block">
-            <button
-              type="button"
-              onClick={() => setOpenMenu(openMenu === 'account' ? null : 'account')}
-              className="menubar-status gap-1 px-1.5"
-              aria-label="Account menu"
-            >
-              {admin ? (
-                <span className="grid h-4 w-4 place-items-center rounded-full bg-[image:linear-gradient(120deg,var(--accent),#22d3ee)] text-[8px] font-bold text-[#05060c]">
-                  {admin.name.slice(0, 1)}
-                </span>
-              ) : (
-                <UserRound className="h-[15px] w-[15px]" />
-              )}
-            </button>
-            <AnimatePresence>
-              {openMenu === 'account' && (
-                <MenuPanel className="right-0 w-[238px]">
-                  {admin ? (
-                    <>
-                      <div className="border-b border-[var(--stroke)] px-2.5 pb-2 pt-1">
-                        <p className="truncate text-[12px] font-medium text-fg">{admin.name}</p>
-                        <p className="truncate text-[10.5px] text-muted">{admin.email}</p>
-                        <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-[var(--fg-faint)]">{admin.role}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpenMenu(null)
-                          window.location.assign('/admin')
-                        }}
-                        className="mt-1 flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-[12px] text-fg hover:bg-[var(--accent)] hover:text-white"
-                      >
-                        <Settings2 className="h-3.5 w-3.5" /> Open command center
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpenMenu(null)
-                          window.location.assign('/admin')
-                        }}
-                        className="flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-[12px] text-fg hover:bg-[var(--accent)] hover:text-white"
-                      >
-                        <Github className="h-3.5 w-3.5" /> GitHub center
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpenMenu(null)
-                          void logout()
-                        }}
-                        className="flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-[12px] text-rose-300 hover:bg-rose-500/15"
-                      >
-                        <LogOut className="h-3.5 w-3.5" /> Sign out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <p className="px-2.5 pb-2 pt-1 text-[10.5px] leading-relaxed text-muted">
-                        Sign in to manage content, moderation, analytics and ARENA AI.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpenMenu(null)
-                          window.location.assign('/login')
-                        }}
-                        className="flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-[12px] text-fg hover:bg-[var(--accent)] hover:text-white"
-                      >
-                        <Command className="h-3.5 w-3.5" /> Admin sign in
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpenMenu(null)
-                          launch('contact')
-                        }}
-                        className="flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-[12px] text-fg hover:bg-[var(--accent)] hover:text-white"
-                      >
-                        <Link2 className="h-3.5 w-3.5" /> Contact Kevin
-                      </button>
-                    </>
-                  )}
-                </MenuPanel>
-              )}
-            </AnimatePresence>
-          </div>
-
           <div className="relative">
             <button
               type="button"
               onClick={() => setPanel(panel === 'clock' ? null : 'clock')}
               className={cn(
-                'ml-0.5 rounded px-1.5 py-[3px] font-mono text-[10.5px] tabular-nums text-white/85 transition-colors hover:bg-white/[0.1]',
+                'ml-0.5 rounded px-1.5 py-[3px] text-[11px] tabular-nums text-white/90 transition-colors hover:bg-white/[0.1]',
                 panel === 'clock' && 'bg-white/[0.16] text-white'
               )}
               aria-label="Date and time"
@@ -863,10 +655,6 @@ export function MenuBar() {
           />
         )}
       </AnimatePresence>
-
-      <div className="pointer-events-none fixed bottom-2 left-1/2 hidden -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-mono text-[9px] text-white/50 backdrop-blur">
-        <Bluetooth className="h-2.5 w-2.5" /> ARENA OS · {profile?.displayName || 'Kevin The Cyber Coder'}
-      </div>
     </div>
   )
 }
