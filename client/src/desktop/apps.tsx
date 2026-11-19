@@ -465,35 +465,31 @@ export const APPS: Record<AppId, AppDefinition> = {
 
 export const DOCK_APPS: AppId[] = [
   'finder',
-  'about',
-  'projects',
-  'skills',
-  'services',
-  'blog',
   'gallery',
+  'projects',
+  'blog',
+  'contact',
+  'music',
   'arena',
   'terminal',
   'github',
-  'music',
-  'contact',
-  'settings',
-  'trash',
 ]
 
+/** Reference order, read left to right then top to bottom across three columns. */
 export const DESKTOP_APPS: AppId[] = [
-  'about',
-  'projects',
-  'skills',
-  'services',
-  'blog',
-  'gallery',
-  'arena',
-  'contact',
-  'github',
-  'terminal',
   'music',
+  'gallery',
+  'about',
   'settings',
+  'arena',
+  'projects',
   'trash',
+  'contact',
+  'skills',
+  'github',
+  'services',
+  'terminal',
+  'blog',
 ]
 
 export const ALL_APPS = Object.values(APPS).filter(

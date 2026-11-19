@@ -67,64 +67,6 @@ function useBattery() {
   return battery
 }
 
-function DesktopWelcome() {
-  const profile = useSite((state) => state.profile)
-  const launch = useLaunch()
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[2] hidden items-center justify-center px-6 pb-24 lg:flex">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="pointer-events-auto w-full max-w-[420px] rounded-[20px] border border-white/15 bg-black/25 p-5 text-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
-      >
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[image:linear-gradient(140deg,var(--accent),#22d3ee)] font-display text-[16px] font-bold text-[#05060c] shadow-lg">
-            K
-          </span>
-          <div className="min-w-0">
-            <p className="font-display text-[18px] font-semibold leading-tight">{profile?.name || 'Mukeshimana Kevin'}</p>
-            <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/55">
-              {profile?.displayName || 'Kevin The Cyber Coder'}
-            </p>
-          </div>
-        </div>
-        <p className="mt-3 text-[11.5px] leading-relaxed text-white/65">
-          {profile?.tagline || "Building Tomorrow's Technology, One Innovation at a Time."} Everything on this desktop is a
-          live portfolio application — open a folder, ask ARENA AI, or inspect the stack in Terminal.
-        </p>
-        <div className="mt-3.5 grid grid-cols-3 gap-1.5">
-          <button
-            type="button"
-            onClick={() => launch('finder')}
-            className="flex flex-col items-center gap-1 rounded-xl bg-white/10 px-2 py-2 text-[10px] text-white hover:bg-white/15"
-          >
-            <FolderOpen className="h-4 w-4" /> Finder
-          </button>
-          <button
-            type="button"
-            onClick={() => launch('projects')}
-            className="flex flex-col items-center gap-1 rounded-xl bg-white/10 px-2 py-2 text-[10px] text-white hover:bg-white/15"
-          >
-            <Sparkles className="h-4 w-4" /> Projects
-          </button>
-          <button
-            type="button"
-            onClick={() => launch('arena')}
-            className="flex flex-col items-center gap-1 rounded-xl bg-[var(--accent)] px-2 py-2 text-[10px] text-white hover:brightness-110"
-          >
-            <Bot className="h-4 w-4" /> ARENA AI
-          </button>
-        </div>
-        <p className="mt-3 flex items-center justify-center gap-1.5 font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/40">
-          <Command className="h-2.5 w-2.5" /> K for Spotlight · double-click icons to open
-        </p>
-      </motion.div>
-    </div>
-  )
-}
-
 function MobileStatusBar() {
   const battery = useBattery()
   const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
@@ -605,7 +547,6 @@ export function DesktopEnvironment() {
           <MenuBar />
           {showIcons && <DesktopIcons />}
           {!focusMode && <DesktopWidgets />}
-          {windows.length === 0 && <DesktopWelcome />}
 
           <main className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
             <AnimatePresence>

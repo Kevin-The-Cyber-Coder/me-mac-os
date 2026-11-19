@@ -55,11 +55,11 @@ export const useDesktop = create<DesktopState>()(
       iconPositions: {},
       hiddenIcons: [],
       discardedIcons: [],
-      iconSize: 'medium',
+      iconSize: 'large',
       autoArrange: true,
       showIcons: true,
-      showWidgets: true,
-      dockSize: 52,
+      showWidgets: false,
+      dockSize: 60,
       dockMagnify: true,
       dockAutohide: false,
       focusMode: false,
@@ -100,6 +100,25 @@ export const useDesktop = create<DesktopState>()(
       setNotificationSounds: (notificationSounds) => set({ notificationSounds }),
       setDoNotDisturb: (doNotDisturb) => set({ doNotDisturb }),
     }),
-    { name: 'kcp-desktop' }
+    { 
+      name: 'kcp-desktop',
+      version: 2,
+      migrate: (persistedState, version) => {
+        const state = (persistedState || {}) as Partial<DesktopState>
+        if (version < 2) {
+          // One-time move to the macOS layout: large right-aligned icons,
+          // no widgets, a roomier dock and freshly arranged positions.
+          return {
+            ...state,
+            iconPositions: {},
+            autoArrange: true,
+            iconSize: 'large',
+            showWidgets: false,
+            dockSize: 60,
+          } as DesktopState
+        }
+        return state as DesktopState
+      },
+    }
   )
 )

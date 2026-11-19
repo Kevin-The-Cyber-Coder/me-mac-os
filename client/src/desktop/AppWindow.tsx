@@ -2,6 +2,7 @@ import { Suspense, useRef, useState, type PointerEvent as ReactPointerEvent } fr
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, Maximize2, Minimize2, Minus, X } from 'lucide-react'
 import { APPS, BARE_APPS, type AppId } from './apps'
+import { MAC_ICONS } from './mac-icons'
 import { WindowParamsContext } from './window-context'
 import { useOS, type OSWindow, type WindowRect } from '../store/os'
 import { cn } from '../lib/utils'
@@ -41,6 +42,7 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
   if (!app) return null
 
   const Component = app.component
+  const HeaderIcon = MAC_ICONS[win.appId as AppId] ?? app.icon
 
   const beginDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
@@ -204,7 +206,7 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
         </div>
 
         <div className="pointer-events-none absolute left-1/2 flex max-w-[58%] -translate-x-1/2 items-center gap-1.5">
-          <app.icon className="h-3.5 w-3.5 shrink-0 text-[var(--fg-faint)]" />
+          <HeaderIcon className="h-3.5 w-3.5 shrink-0 text-[var(--fg-faint)]" />
           <h2 className="truncate text-[12px] font-medium text-[var(--fg-muted)]">{win.title}</h2>
         </div>
 

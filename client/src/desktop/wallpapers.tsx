@@ -9,6 +9,14 @@ export interface WallpaperDefinition {
 
 export const WALLPAPERS: WallpaperDefinition[] = [
   {
+    id: 'macos',
+    label: 'macOS Waves',
+    description: 'Deep blue and violet currents — the signature MacBook desktop.',
+    className: 'wp-macos',
+    image: '/wallpapers/macos-waves.svg',
+    tone: 'from-[#2b6bff] via-[#6d3cff] to-[#ff8ad4]',
+  },
+  {
     id: 'rays',
     label: 'Rays',
     description: 'The signature ARENA gradient — blue, violet and emerald light rays.',
@@ -45,7 +53,7 @@ export const WALLPAPERS: WallpaperDefinition[] = [
   },
 ]
 
-export const DEFAULT_WALLPAPER = 'rays'
+export const DEFAULT_WALLPAPER = 'macos'
 
 export function getWallpaper(id?: string): WallpaperDefinition {
   return WALLPAPERS.find((wallpaper) => wallpaper.id === id) || WALLPAPERS[0]
@@ -57,13 +65,16 @@ export function WallpaperLayer({ id, dim = false }: { id?: string; dim?: boolean
     <>
       <div
         className={`absolute inset-0 bg-cover bg-center ${wallpaper.className || ''}`}
-        style={
-          wallpaper.image
-            ? { backgroundImage: `url(${wallpaper.image})`, backgroundColor: '#05070f' }
-            : undefined
-        }
+        style={{ backgroundColor: '#05070f' }}
         aria-hidden
-      />
+      >
+        {wallpaper.image && (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${wallpaper.image})` }}
+          />
+        )}
+      </div>
       <div
         className={`pointer-events-none absolute inset-0 ${
           dim ? 'bg-black/35' : 'bg-[radial-gradient(120%_100%_at_50%_0%,transparent_35%,rgba(3,6,16,0.55)_100%)]'

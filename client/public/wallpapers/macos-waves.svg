@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1440" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Blue and violet macOS style waves">
+  <defs>
+    <linearGradient id="macBase" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#040d33" />
+      <stop offset="0.35" stop-color="#0a1a63" />
+      <stop offset="0.68" stop-color="#141580" />
+      <stop offset="1" stop-color="#1b0f52" />
+    </linearGradient>
+    <linearGradient id="macBandBlue" x1="0" y1="0" x2="1" y2="0.5">
+      <stop offset="0" stop-color="#0b2f9e" />
+      <stop offset="0.3" stop-color="#1f56e0" />
+      <stop offset="0.62" stop-color="#4f8dff" />
+      <stop offset="1" stop-color="#79b6ff" />
+    </linearGradient>
+    <linearGradient id="macBandViolet" x1="0" y1="0.2" x2="1" y2="0.8">
+      <stop offset="0" stop-color="#2b1d92" />
+      <stop offset="0.35" stop-color="#5b34d8" />
+      <stop offset="0.7" stop-color="#9a55ff" />
+      <stop offset="1" stop-color="#c987ff" />
+    </linearGradient>
+    <linearGradient id="macBandPink" x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#7a2cae" />
+      <stop offset="0.45" stop-color="#d24ecb" />
+      <stop offset="0.75" stop-color="#ff74b8" />
+      <stop offset="1" stop-color="#ffb3d6" />
+    </linearGradient>
+    <radialGradient id="macGlowTop" cx="0.18" cy="0.08" r="0.62">
+      <stop offset="0" stop-color="#4c8dff" stop-opacity="0.34" />
+      <stop offset="1" stop-color="#4c8dff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="macGlowBottom" cx="0.82" cy="0.94" r="0.7">
+      <stop offset="0" stop-color="#c46bff" stop-opacity="0.3" />
+      <stop offset="1" stop-color="#c46bff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="macEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0" />
+      <stop offset="0.4" stop-color="#ffffff" stop-opacity="0.34" />
+      <stop offset="0.75" stop-color="#ffffff" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="macVignette" cx="0.5" cy="0.42" r="0.8">
+      <stop offset="0.55" stop-color="#020718" stop-opacity="0" />
+      <stop offset="1" stop-color="#020718" stop-opacity="0.45" />
+    </radialGradient>
+    <filter id="macHaze" x="-10%" y="-20%" width="120%" height="140%">
+      <feGaussianBlur stdDeviation="38" />
+    </filter>
+  </defs>
+
+  <rect width="2560" height="1440" fill="url(#macBase)" />
+
+  <g filter="url(#macHaze)" opacity="0.55">
+    <path d="M-200 220C320 40 920 260 1380 620S2280 1080 2820 760v760H-200z" fill="url(#macBandBlue)" />
+    <path d="M-200 660C420 380 980 640 1500 920s820 220 1360-60v660H-200z" fill="url(#macBandViolet)" />
+  </g>
+
+  <g>
+    <path d="M-200 250C300 60 880 280 1330 640S2220 1090 2780 770v670H-200z" fill="url(#macBandBlue)" opacity="0.95" />
+    <path d="M-200 690C430 400 990 660 1510 940s840 210 1370-80v580H-200z" fill="url(#macBandViolet)" opacity="0.9" />
+    <path d="M-200 1030C460 820 1040 1040 1600 1190s880 70 1280-150v400H-200z" fill="url(#macBandPink)" opacity="0.82" />
+  </g>
+
+  <g fill="none" stroke="url(#macEdge)" stroke-linecap="round">
+    <path d="M-160 262C330 80 900 300 1350 655S2210 1085 2760 782" stroke-width="3.4" />
+    <path d="M-160 700C460 418 1010 672 1530 948s800 208 1330-74" stroke-width="2.8" opacity="0.85" />
+    <path d="M-160 1040C500 836 1060 1050 1620 1200s840 60 1240-146" stroke-width="2.2" opacity="0.6" />
+  </g>
+
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" opacity="0.12">
+    <path d="M-160 330C340 150 880 360 1330 705" stroke-width="1.4" />
+    <path d="M1450 960c320 180 700 240 1310-28" stroke-width="1.2" />
+    <path d="M-160 1120c560-180 1080 40 1660 200" stroke-width="1" />
+  </g>
+
+  <rect width="2560" height="1440" fill="url(#macGlowTop)" />
+  <rect width="2560" height="1440" fill="url(#macGlowBottom)" />
+  <rect width="2560" height="1440" fill="url(#macVignette)" />
+</svg>
