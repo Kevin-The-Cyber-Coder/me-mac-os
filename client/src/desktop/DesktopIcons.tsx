@@ -13,19 +13,22 @@ import { useLaunch } from './launch'
 import { ContextMenu, type ContextMenuItem } from './ContextMenu'
 import { useDesktop, type IconSize } from '../store/desktop'
 import { useOS } from '../store/os'
+import { MAC_ICONS } from './mac-icons'
 import { cn } from '../lib/utils'
 
 const CELL: Record<IconSize, { w: number; h: number; tile: number; label: string }> = {
-  small: { w: 80, h: 78, tile: 44, label: 'text-[10px]' },
-  medium: { w: 94, h: 92, tile: 54, label: 'text-[11px]' },
-  large: { w: 108, h: 104, tile: 64, label: 'text-[11.5px]' },
+  small: { w: 100, h: 106, tile: 58, label: 'text-[10.5px]' },
+  medium: { w: 116, h: 122, tile: 68, label: 'text-[11.5px]' },
+  large: { w: 128, h: 136, tile: 76, label: 'text-[12px]' },
 }
+
+const COLUMNS = 3
 
 export function DesktopIcons() {
   const launch = useLaunch()
   const windows = useOS((state) => state.windows)
   const minimizeAllWindows = useOS((state) => state.minimizeAll)
-  const { iconPositions, hiddenIcons, discardedIcons, autoArrange, iconSize, setIconPosition, setAutoArrange, clearIconPositions, hideIcon, arrangeIcons, restoreIcons, setShowIcons } =
+  const { iconPositions, hiddenIcons, discardedIcons, autoArrange, iconSize, setIconPosition, setAutoArrange, clearIconPositions, hideIcon, restoreIcons, setShowIcons } =
     useDesktop()
   const [selected, setSelected] = useState<AppId | null>(null)
   const [drag, setDrag] = useState<{ id: AppId; x: number; y: number; startX: number; startY: number; moved: boolean } | null>(null)
@@ -41,8 +44,11 @@ export function DesktopIcons() {
   }, [])
 
   const cell = CELL[iconSize]
-  const rows = Math.max(1, Math.floor((viewport.h - 150) / cell.h))
   const visible = DESKTOP_APPS.filter((id) => !hiddenIcons.includes(id) && !discardedIcons.includes(id))
+  const rowCount = Math.max(1, Math.ceil(visible.length / COLUMNS))
+  // Keep all icons on screen on short displays by tightening the row rhythm.
+  const rowStep = Math.min(cell.h, Math.max(cell.h * 0.72, (viewport.h - 178) / rowCount))
+  const rightMargin = 22
 
   const positionFor = useCallback(
     (id: AppId, index: number) => {
@@ -50,17 +56,17 @@ export function DesktopIcons() {
       if (stored && !autoArrange) {
         return {
           x: Math.min(Math.max(stored.x, 6), viewport.w - cell.w - 6),
-          y: Math.min(Math.max(stored.y, 36), viewport.h - cell.h - 100),
+          y: Math.min(Math.max(stored.y, 34), viewport.h - cell.h - 96),
         }
       }
-      const col = Math.floor(index / rows)
-      const row = index % rows
+      const column = index < 9 ? index % COLUMNS : (index - 9) % 2
+      const row = index < 9 ? Math.floor(index / COLUMNS) : 3 + Math.floor((index - 9) / 2)
       return {
-        x: viewport.w - 14 - cell.w - col * cell.w,
-        y: 44 + row * cell.h,
+        x: viewport.w - rightMargin - cell.w - (COLUMNS - 1 - column) * cell.w,
+        y: 46 + row * rowStep,
       }
     },
-    [autoArrange, cell.h, cell.w, iconPositions, rows, viewport.h, viewport.w]
+    [autoArrange, cell.h, cell.w, iconPositions, rightMargin, rowStep, viewport.h, viewport.w]
   )
 
   const desktopMenu: ContextMenuItem[] = [
@@ -120,7 +126,7 @@ export function DesktopIcons() {
     const dy = event.clientY - current.startY
     if (!current.moved && Math.hypot(dx, dy) < 5) return
     const x = Math.min(Math.max(current.x + dx, 6), viewport.w - cell.w - 6)
-    const y = Math.min(Math.max(current.y + dy, 36), viewport.h - cell.h - 100)
+    const y = Math.min(Math.max(current.y + dy, 34), viewport.h - cell.h - 96)
     const next = { ...current, x, y, moved: true }
     setDrag(next)
   }
@@ -140,7 +146,7 @@ export function DesktopIcons() {
 
   return (
     <div
-      className="absolute inset-x-0 bottom-0 top-[38px] z-[4]"
+      className="absolute inset-x-0 bottom-0 top-[30px] z-[4]"
       onPointerDown={(event) => {
         if (event.target === event.currentTarget) setSelected(null)
       }}
@@ -154,7 +160,7 @@ export function DesktopIcons() {
         const app = APPS[id]
         const base = positionFor(id, index)
         const active = drag?.id === id ? { x: drag.x, y: drag.y } : base
-        const Icon = app.icon
+        const MacIcon = MAC_ICONS[id]
         return (
           <button
             key={id}
@@ -178,29 +184,37 @@ export function DesktopIcons() {
             }}
             aria-label={`${app.label} — double click to open`}
             className={cn(
-              'group absolute flex w-[94px] flex-col items-center gap-1 rounded-lg px-1 pb-1 pt-1.5 text-center outline-none transition-colors',
+              'group absolute flex flex-col items-center gap-[3px] rounded-[7px] px-1 pb-1 pt-0.5 text-center outline-none transition-colors',
               drag?.id === id ? 'cursor-grabbing' : 'cursor-default',
-              selected === id && 'bg-white/[0.12] ring-1 ring-white/20'
+              selected === id && 'bg-white/[0.14] ring-1 ring-white/25'
             )}
             style={{ left: active.x, top: active.y, width: cell.w }}
           >
             <span
-              className={cn(
-                'relative grid place-items-center rounded-[13px] bg-gradient-to-br text-white shadow-[0_8px_18px_-8px_rgba(0,0,0,0.9)] ring-1 ring-white/25 transition-transform group-hover:scale-[1.04]',
-                app.tone
-              )}
+              className="relative grid place-items-center transition-transform duration-150 group-hover:scale-[1.04]"
               style={{ width: cell.tile, height: cell.tile }}
             >
-              <Icon style={{ width: cell.tile * 0.48, height: cell.tile * 0.48 }} strokeWidth={1.8} />
+              {MacIcon ? (
+                <MacIcon className="h-full w-full drop-shadow-[0_5px_9px_rgba(0,0,0,0.42)]" />
+              ) : (
+                <span
+                  className={cn(
+                    'grid h-full w-full place-items-center rounded-[14px] bg-gradient-to-br text-white shadow-[0_6px_14px_-6px_rgba(0,0,0,0.75)] ring-1 ring-white/25',
+                    app.tone
+                  )}
+                >
+                  <app.icon style={{ width: cell.tile * 0.48, height: cell.tile * 0.48 }} strokeWidth={1.8} />
+                </span>
+              )}
               {running.has(id) && (
-                <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white shadow" />
+                <span className="absolute -bottom-[3px] left-1/2 h-[5px] w-[5px] -translate-x-1/2 rounded-full bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)]" />
               )}
             </span>
             <span
               className={cn(
-                'line-clamp-2 max-w-full px-0.5 font-medium leading-tight text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]',
+                'line-clamp-2 max-w-full px-0.5 font-semibold leading-[1.25] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]',
                 cell.label,
-                selected === id && 'rounded bg-[var(--accent)] px-1 text-white'
+                selected === id && 'rounded-[4px] bg-[#0a6fe8] px-1.5 text-white drop-shadow-none'
               )}
             >
               {app.label}
