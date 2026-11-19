@@ -6,6 +6,7 @@ import { COLLECTIONS } from './admin/fieldRegistry'
 import { useAuth } from './store/auth'
 import { trackPageview } from './lib/analytics'
 import { DesktopEnvironment } from './desktop/DesktopEnvironment'
+import { PwaUpdateToast } from './components/PwaUpdateToast'
 import Login from './pages/Login'
 
 const AdminLayout = lazy(() =>
@@ -151,6 +152,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      <PwaUpdateToast />
       <BrowserRouter>
         <RouteEffects />
         <Suspense fallback={<RouteFallback />}>
