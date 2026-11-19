@@ -1,0 +1,36 @@
+{
+  "name": "Kevin The Cyber Coder — Developer Portfolio",
+  "short_name": "Kevin Cyber",
+  "description": "Interactive macOS-inspired portfolio, ARENA AI and GitHub Command Center by Mukeshimana Kevin.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#05060c",
+  "theme_color": "#05060c",
+  "categories": ["portfolio", "developer", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Projects", "url": "/projects", "description": "Browse shipped work" },
+    { "name": "ARENA AI", "url": "/arena-ai", "description": "Ask the portfolio assistant" },
+    { "name": "GitHub Command Center", "url": "/github", "description": "Verified GitHub activity" },
+    { "name": "Terminal", "url": "/terminal", "description": "Explore via the terminal" }
+  ]
+}
