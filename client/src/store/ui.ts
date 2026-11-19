@@ -40,7 +40,7 @@ export const useUI = create<UIState>()(
     (set, get) => ({
       theme: 'dark',
       accent: 'violet',
-      wallpaper: 'rays',
+      wallpaper: 'macos',
       glass: 0.7,
       reduceMotion: false,
       paletteOpen: false,
@@ -70,6 +70,17 @@ export const useUI = create<UIState>()(
     }),
     {
       name: 'kcp-ui',
+      version: 1,
+      migrate: (persistedState, version) => {
+        const state = (persistedState || {}) as Partial<UIState>
+        if (version < 1) {
+          return {
+            ...state,
+            wallpaper: !state.wallpaper || state.wallpaper === 'rays' ? 'macos' : state.wallpaper,
+          } as UIState
+        }
+        return state as UIState
+      },
       partialize: (state) => ({
         theme: state.theme,
         accent: state.accent,
