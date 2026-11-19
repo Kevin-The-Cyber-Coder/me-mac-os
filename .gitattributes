@@ -1,0 +1,28 @@
+# Normalise line endings in the repository, regardless of the host OS.
+* text=auto
+
+# Explicit text types.
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.json text
+*.md text
+*.css text
+*.html text
+*.svg text
+*.yml text
+*.yaml text
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Lockfiles: keep them out of diffs and language stats.
+package-lock.json linguist-generated=true -diff
