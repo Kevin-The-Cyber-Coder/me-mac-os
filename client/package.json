@@ -32,7 +32,7 @@
     "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.15.10",
     "tailwind-merge": "^2.6.0",
-    "three": "^0.171.0",
+    "three": "^0.187.0",
     "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },
@@ -40,7 +40,7 @@
     "@playwright/test": "^1.49.1",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
-    "@types/three": "^0.171.0",
+    "@types/three": "^0.187.0",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "@vitejs/plugin-react": "^4.3.4",
