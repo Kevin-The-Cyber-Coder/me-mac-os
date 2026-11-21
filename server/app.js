@@ -34,6 +34,10 @@ export function createApp() {
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      frameguard: { action: 'deny' },
+      noSniff: true,
+      hsts: env.isProd ? { maxAge: 31_536_000, includeSubDomains: true, preload: true } : false,
     })
   )
 
@@ -58,6 +62,10 @@ export function createApp() {
 
   app.use('/uploads', express.static(uploadDir, { maxAge: '7d', fallthrough: true }))
   app.use('/api', globalLimiter)
+  app.use('/api', (_req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
 
   app.get('/api/health', (_req, res) => {
     res.json({
