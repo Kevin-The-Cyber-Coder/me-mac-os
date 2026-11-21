@@ -6,7 +6,7 @@ import { repo } from '../config/store.js'
 import { asyncHandler, HttpError } from '../utils/errors.js'
 import { validate } from '../middleware/validate.js'
 import { protect, signAccessToken, signRefreshToken, verifyRefreshToken } from '../middleware/auth.js'
-import { authLimiter } from '../middleware/rateLimit.js'
+import { authLimiter, refreshLimiter } from '../middleware/rateLimit.js'
 import {
   loginSchema,
   forgotPasswordSchema,
@@ -18,12 +18,23 @@ import { logActivity } from '../services/activity.js'
 
 const router = Router()
 
+// Same-site deployments keep the refresh cookie strict; a separate client
+// origin still requires SameSite=None for the cookie to travel.
+const sameSite = (() => {
+  try {
+    return new URL(env.clientUrl).host === new URL(env.publicApiUrl).host ? 'lax' : 'none'
+  } catch {
+    return 'lax'
+  }
+})()
+
 const cookieOptions = {
   httpOnly: true,
   secure: env.isProd,
-  sameSite: env.isProd ? 'none' : 'lax',
+  sameSite: env.isProd ? sameSite : 'lax',
   path: '/api/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  priority: 'high',
 }
 
 const publicAdmin = (admin) => ({
@@ -65,6 +76,7 @@ router.post(
 
 router.post(
   '/refresh',
+  refreshLimiter,
   asyncHandler(async (req, res) => {
     const token = req.cookies?.kcp_refresh
     if (!token) throw new HttpError(401, 'No refresh session')

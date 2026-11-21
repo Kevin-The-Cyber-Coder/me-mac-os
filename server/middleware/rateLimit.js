@@ -12,11 +12,21 @@ export const globalLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 12,
+  max: 8,
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   message: message('Too many authentication attempts. Try again in 15 minutes.'),
+})
+
+// Refresh is cheap but still worth bounding so a stolen cookie cannot be
+// replayed indefinitely without tripping a limit.
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: message('Too many session refreshes. Sign in again shortly.'),
 })
 
 export const contactLimiter = rateLimit({

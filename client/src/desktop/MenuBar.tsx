@@ -59,13 +59,25 @@ interface MenuItem {
   disabled?: boolean
 }
 
-function MenuPanel({ children, className }: { children: React.ReactNode; className?: string }) {
+function MenuPanel({
+  children,
+  className,
+  role,
+  label,
+}: {
+  children: React.ReactNode
+  className?: string
+  role?: 'menu' | 'dialog'
+  label?: string
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -5, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -4, scale: 0.985 }}
       transition={{ duration: 0.13 }}
+      role={role}
+      aria-label={label}
       className={cn(
         'glass-strong absolute top-[calc(100%+3px)] overflow-hidden rounded-[10px] border border-[var(--stroke-strong)] p-1.5 shadow-2xl',
         className
@@ -314,6 +326,7 @@ export function MenuBar() {
             openMenu === 'system' && 'bg-white/[0.14]'
           )}
           aria-label="Apple menu"
+          aria-haspopup="menu"
           aria-expanded={openMenu === 'system'}
         >
           <AppleLogo className="h-[15px] w-[15px]" />
@@ -326,6 +339,8 @@ export function MenuBar() {
             'rounded px-2 py-[3px] text-[12.5px] font-semibold text-white transition-colors hover:bg-white/[0.1]',
             openMenu === 'system' && 'bg-white/[0.1]'
           )}
+          aria-haspopup="menu"
+          aria-expanded={openMenu === 'system'}
         >
           {activeApp.label}
         </button>
@@ -350,14 +365,15 @@ export function MenuBar() {
               </button>
               <AnimatePresence>
                 {openMenu === key && (
-                  <MenuPanel className="left-0 w-[242px]">
+                  <MenuPanel className="left-0 w-[242px]" role="menu" label={key}>
                     {menus[key].map((item, index) =>
                       item.divider ? (
-                        <div key={`divider-${index}`} className="my-1 h-px bg-white/10" />
+                        <div key={`divider-${index}`} role="separator" className="my-1 h-px bg-white/10" />
                       ) : (
                         <button
                           key={item.label}
                           type="button"
+                          role="menuitem"
                           disabled={item.disabled}
                           onClick={() => {
                             item.action?.()
@@ -522,6 +538,16 @@ export function MenuBar() {
                 panel === 'clock' && 'bg-white/[0.16] text-white'
               )}
               aria-label="Date and time"
+              aria-haspopup="dialog"
+              aria-expanded={panel === 'clock'}
+              title={clock.toLocaleString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
             >
               <span className="hidden lg:inline">{dateLabel} </span>
               {timeLabel}
@@ -573,11 +599,20 @@ export function MenuBar() {
                       )
                     })}
                   </div>
-                  <div className="mt-2 border-t border-[var(--stroke)] pt-2 text-[10.5px]">
-                    <p className="font-medium text-fg">
-                      {clock.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </p>
-                    <p className="font-mono text-[var(--fg-faint)]">{clock.toLocaleTimeString()}</p>
+                  <div className="mt-2 flex items-end justify-between gap-2 border-t border-[var(--stroke)] pt-2 text-[10.5px]">
+                    <div>
+                      <p className="font-medium text-fg">
+                        {clock.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      </p>
+                      <p className="font-mono text-[var(--fg-faint)]">{clock.toLocaleTimeString()}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCalendarMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}
+                      className="rounded border border-[var(--stroke)] px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:bg-white/10 hover:text-fg"
+                    >
+                      Today
+                    </button>
                   </div>
                 </MenuPanel>
               )}
@@ -588,14 +623,15 @@ export function MenuBar() {
 
       <AnimatePresence>
         {openMenu === 'system' && (
-          <MenuPanel className="left-2 top-[29px] w-[262px]">
+          <MenuPanel className="left-2 top-[29px] w-[262px]" role="menu" label="Apple menu">
             {systemMenu.map((item, index) =>
               item.divider ? (
-                <div key={`divider-${index}`} className="my-1 h-px bg-white/10" />
+                <div key={`divider-${index}`} role="separator" className="my-1 h-px bg-white/10" />
               ) : (
                 <button
                   key={item.label}
                   type="button"
+                  role="menuitem"
                   onClick={() => {
                     item.action?.()
                     setOpenMenu(null)

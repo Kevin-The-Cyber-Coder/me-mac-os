@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import App from './App'
+import { initPwa } from './lib/pwa'
 import './index.css'
 
 const container = document.getElementById('root')
@@ -15,10 +16,4 @@ ReactDOM.createRoot(container).render(
   </React.StrictMode>
 )
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* offline support is optional */
-    })
-  })
-}
+initPwa()

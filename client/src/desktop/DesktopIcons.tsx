@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import {
   FolderOpen,
   Grid2X2,
@@ -36,15 +36,30 @@ export function DesktopIcons() {
   const [viewport, setViewport] = useState({ w: window.innerWidth, h: window.innerHeight })
   const dragRef = useRef(drag)
   dragRef.current = drag
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
-    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight })
+    let frame: number | null = null
+    const sync = () => {
+      frame = null
+      setViewport({ w: window.innerWidth, h: window.innerHeight })
+    }
+    const onResize = () => {
+      if (frame !== null) return
+      frame = window.requestAnimationFrame(sync)
+    }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      if (frame !== null) window.cancelAnimationFrame(frame)
+    }
   }, [])
 
   const cell = CELL[iconSize]
-  const visible = DESKTOP_APPS.filter((id) => !hiddenIcons.includes(id) && !discardedIcons.includes(id))
+  const visible = useMemo(
+    () => DESKTOP_APPS.filter((id) => !hiddenIcons.includes(id) && !discardedIcons.includes(id)),
+    [hiddenIcons, discardedIcons]
+  )
   const rowCount = Math.max(1, Math.ceil(visible.length / COLUMNS))
   // Keep all icons on screen on short displays by tightening the row rhythm.
   const rowStep = Math.min(cell.h, Math.max(cell.h * 0.72, (viewport.h - 178) / rowCount))
@@ -67,6 +82,12 @@ export function DesktopIcons() {
       }
     },
     [autoArrange, cell.h, cell.w, iconPositions, rightMargin, rowStep, viewport.h, viewport.w]
+  )
+
+  // Positions only change when the grid inputs change, not while dragging.
+  const layout = useMemo(
+    () => visible.map((id, index) => ({ id, index, ...positionFor(id, index) })),
+    [positionFor, visible]
   )
 
   const desktopMenu: ContextMenuItem[] = [
@@ -142,7 +163,7 @@ export function DesktopIcons() {
     event.currentTarget.releasePointerCapture?.(event.pointerId)
   }
 
-  const running = new Set(windows.map((win) => win.appId))
+  const running = useMemo(() => new Set(windows.map((win) => win.appId)), [windows])
 
   return (
     <div
@@ -156,15 +177,18 @@ export function DesktopIcons() {
         setMenu({ x: event.clientX, y: event.clientY })
       }}
     >
-      {visible.map((id, index) => {
+      {layout.map(({ id, index, x, y }) => {
         const app = APPS[id]
-        const base = positionFor(id, index)
+        const base = { x, y }
         const active = drag?.id === id ? { x: drag.x, y: drag.y } : base
         const MacIcon = MAC_ICONS[id]
         return (
           <button
             key={id}
             type="button"
+            ref={(node) => {
+              itemRefs.current[id] = node
+            }}
             onPointerDown={(event) => startDrag(event, id, base.x, base.y)}
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
@@ -180,18 +204,35 @@ export function DesktopIcons() {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
                 launch(id)
+                return
               }
+              const columns = index < 9 ? COLUMNS : 2
+              let nextIndex = index
+              if (event.key === 'ArrowRight') nextIndex = Math.min(visible.length - 1, index + 1)
+              else if (event.key === 'ArrowLeft') nextIndex = Math.max(0, index - 1)
+              else if (event.key === 'ArrowDown') nextIndex = Math.min(visible.length - 1, index + columns)
+              else if (event.key === 'ArrowUp') nextIndex = Math.max(0, index - columns)
+              else if (event.key === 'Home') nextIndex = 0
+              else if (event.key === 'End') nextIndex = visible.length - 1
+              else return
+              event.preventDefault()
+              const nextId = visible[nextIndex]
+              if (!nextId) return
+              setSelected(nextId)
+              itemRefs.current[nextId]?.focus()
             }}
+            onFocus={() => setSelected(id)}
+            tabIndex={selected === id || (!selected && index === 0) ? 0 : -1}
             aria-label={`${app.label} — double click to open`}
             className={cn(
-              'group absolute flex flex-col items-center gap-[3px] rounded-[7px] px-1 pb-1 pt-0.5 text-center outline-none transition-colors',
+              'group absolute flex flex-col items-center gap-[3px] rounded-[7px] px-1 pb-1 pt-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40',
               drag?.id === id ? 'cursor-grabbing' : 'cursor-default',
               selected === id && 'bg-white/[0.14] ring-1 ring-white/25'
             )}
             style={{ left: active.x, top: active.y, width: cell.w }}
           >
             <span
-              className="relative grid place-items-center transition-transform duration-150 group-hover:scale-[1.04]"
+              className="relative grid place-items-center transition-[transform,filter] duration-200 ease-out group-hover:-translate-y-[3px] group-hover:scale-[1.06] group-focus-visible:-translate-y-[2px] group-active:scale-[0.98]"
               style={{ width: cell.tile, height: cell.tile }}
             >
               {MacIcon ? (

@@ -331,9 +331,20 @@ export function DesktopEnvironment() {
   const [mobile, setMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(max-width: 860px)').matches
   )
+  const [announcement, setAnnouncement] = useState('')
   const openedPath = useRef<string | null>(null)
   /** Paths that have actually owned a window; guards against a same-render race on deep links. */
   const seenPaths = useRef<Set<string>>(new Set())
+
+  // Screen-reader status for window changes; equal strings do not re-announce.
+  useEffect(() => {
+    if (!windows.length) {
+      setAnnouncement('Desktop')
+      return
+    }
+    const focused = windows.find((win) => win.id === focusedId)
+    setAnnouncement(focused ? `${focused.title} window is active` : `${windows.length} windows open`)
+  }, [windows, focusedId])
 
   useEffect(() => {
     void loadSite()
@@ -545,6 +556,9 @@ export function DesktopEnvironment() {
       ) : (
         <>
           <MenuBar />
+          <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {announcement}
+          </div>
           {showIcons && <DesktopIcons />}
           {!focusMode && <DesktopWidgets />}
 
