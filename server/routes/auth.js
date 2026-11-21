@@ -18,12 +18,23 @@ import { logActivity } from '../services/activity.js'
 
 const router = Router()
 
+// Same-site deployments keep the refresh cookie strict; a separate client
+// origin still requires SameSite=None for the cookie to travel.
+const sameSite = (() => {
+  try {
+    return new URL(env.clientUrl).host === new URL(env.publicApiUrl).host ? 'lax' : 'none'
+  } catch {
+    return 'lax'
+  }
+})()
+
 const cookieOptions = {
   httpOnly: true,
   secure: env.isProd,
-  sameSite: env.isProd ? 'none' : 'lax',
+  sameSite: env.isProd ? sameSite : 'lax',
   path: '/api/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  priority: 'high',
 }
 
 const publicAdmin = (admin) => ({
