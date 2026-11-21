@@ -12,6 +12,7 @@ import { dbState } from './config/db.js'
 import { repo } from './config/store.js'
 import { globalLimiter } from './middleware/rateLimit.js'
 import { notFoundHandler, errorHandler } from './middleware/error.js'
+import { HttpError } from './utils/errors.js'
 import { uploadDir } from './middleware/upload.js'
 import authRoutes from './routes/auth.js'
 import publicRoutes from './routes/public.js'
@@ -54,7 +55,17 @@ export function createApp() {
     })
   )
 
-  app.use(express.json({ limit: '6mb' }))
+  const jsonBody = express.json({ limit: '6mb' })
+  // body-parser errors are not HttpErrors, so translate them before the
+  // central handler sees them and they turn into generic 500s.
+  app.use((req, res, next) => {
+    jsonBody(req, res, (error) => {
+      if (!error) return next()
+      if (error.type === 'entity.too.large') return next(new HttpError(413, 'Request body is too large'))
+      if (error.type === 'entity.parse.failed') return next(new HttpError(400, 'Malformed JSON body'))
+      return next(error)
+    })
+  })
   app.use(express.urlencoded({ extended: true, limit: '1mb' }))
   app.use(cookieParser())
   app.use(compression())
