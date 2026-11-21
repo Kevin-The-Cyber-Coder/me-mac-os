@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -29,6 +30,13 @@ export function createApp() {
   const app = express()
   app.set('trust proxy', 1)
   app.disable('x-powered-by')
+
+  // Correlate a client-visible response with the server log line.
+  app.use((req, res, next) => {
+    req.id = crypto.randomUUID()
+    res.setHeader('X-Request-Id', req.id)
+    next()
+  })
 
   app.use(
     helmet({
