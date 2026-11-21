@@ -232,7 +232,7 @@ export function DesktopIcons() {
             style={{ left: active.x, top: active.y, width: cell.w }}
           >
             <span
-              className="relative grid place-items-center transition-transform duration-150 group-hover:scale-[1.04]"
+              className="relative grid place-items-center transition-[transform,filter] duration-200 ease-out group-hover:-translate-y-[3px] group-hover:scale-[1.06] group-focus-visible:-translate-y-[2px] group-active:scale-[0.98]"
               style={{ width: cell.tile, height: cell.tile }}
             >
               {MacIcon ? (
