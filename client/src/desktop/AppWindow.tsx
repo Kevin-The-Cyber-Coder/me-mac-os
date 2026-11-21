@@ -232,7 +232,14 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
 
         <div className="pointer-events-none absolute left-1/2 flex max-w-[58%] -translate-x-1/2 items-center gap-1.5">
           <HeaderIcon className="h-3.5 w-3.5 shrink-0 text-[var(--fg-faint)]" />
-          <h2 className="truncate text-[12px] font-medium text-[var(--fg-muted)]">{win.title}</h2>
+          <h2
+            className={cn(
+              'truncate text-[12px] font-medium transition-colors',
+              focused ? 'text-[var(--fg)]' : 'text-[var(--fg-muted)]'
+            )}
+          >
+            {win.title}
+          </h2>
         </div>
 
         <div className="ml-auto flex items-center gap-1">

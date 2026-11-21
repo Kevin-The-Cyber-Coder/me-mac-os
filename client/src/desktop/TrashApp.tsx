@@ -71,6 +71,24 @@ export default function TrashApp() {
                 Items you remove from the desktop are listed here. Removing a shortcut never deletes portfolio content
                 from the database.
               </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => launch('finder')}
+                  className="rounded-md border border-[var(--stroke)] px-2.5 py-1 text-[10.5px] text-fg transition-colors hover:bg-white/[0.07]"
+                >
+                  Open Finder
+                </button>
+                {discarded.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => restoreIcons()}
+                    className="rounded-md border border-[var(--stroke)] px-2.5 py-1 text-[10.5px] text-fg transition-colors hover:bg-white/[0.07]"
+                  >
+                    Restore {discarded.length} hidden shortcut{discarded.length === 1 ? '' : 's'}
+                  </button>
+                )}
+              </div>
               {discarded.length > 0 && (
                 <p className="mt-2 font-mono text-[9px] text-[var(--fg-faint)]">
                   {discarded.length} shortcut{discarded.length === 1 ? '' : 's'} permanently hidden
