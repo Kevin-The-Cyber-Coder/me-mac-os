@@ -1,5 +1,6 @@
 import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
 import { AlertTriangle, LogOut, RefreshCw, ShieldAlert } from 'lucide-react'
 import { Button, ErrorState, Spinner } from './components/ui'
 import { COLLECTIONS } from './admin/fieldRegistry'
@@ -152,34 +153,36 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <PwaUpdateToast />
-      <BrowserRouter>
-        <RouteEffects />
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            {/* Standalone areas keep their full-screen layouts. */}
-            <Route path="/login" element={<Login />} />
+      <MotionConfig reducedMotion="user">
+        <PwaUpdateToast />
+        <BrowserRouter>
+          <RouteEffects />
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              {/* Standalone areas keep their full-screen layouts. */}
+              <Route path="/login" element={<Login />} />
 
-            <Route path="/admin" element={<RequireAuth />}>
-              <Route element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="analytics-events" element={<CollectionPage collection="analytics" />} />
-                <Route path="github" element={<GithubCenter />} />
-                <Route path="notifications" element={<NotificationsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="ai" element={<AiSettings />} />
-                <Route path="users" element={<UsersPage />} />
-                <Route path="backup" element={<BackupPage />} />
-                <Route path=":collection" element={<CollectionRoute />} />
+              <Route path="/admin" element={<RequireAuth />}>
+                <Route element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="analytics-events" element={<CollectionPage collection="analytics" />} />
+                  <Route path="github" element={<GithubCenter />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="ai" element={<AiSettings />} />
+                  <Route path="users" element={<UsersPage />} />
+                  <Route path="backup" element={<BackupPage />} />
+                  <Route path=":collection" element={<CollectionRoute />} />
+                </Route>
               </Route>
-            </Route>
 
-            {/* Everything else is the desktop. URL changes open the matching app. */}
-            <Route path="*" element={<DesktopEnvironment />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+              {/* Everything else is the desktop. URL changes open the matching app. */}
+              <Route path="*" element={<DesktopEnvironment />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </MotionConfig>
     </ErrorBoundary>
   )
 }
