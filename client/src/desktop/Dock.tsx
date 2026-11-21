@@ -18,7 +18,6 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
   const restoreWindow = useOS((state) => state.restoreWindow)
   const { dockSize, dockMagnify, dockAutohide } = useDesktop()
   const [mouseX, setMouseX] = useState<number | null>(null)
-  const [hovered, setHovered] = useState<string | null>(null)
   const [hoverDock, setHoverDock] = useState(false)
   const [showMinimized, setShowMinimized] = useState(false)
   const [focusIndex, setFocusIndex] = useState(0)
@@ -150,19 +149,17 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
                 ref={(node) => {
                   itemRefs.current[index] = node
                 }}
-                className="relative flex shrink-0 flex-col items-center"
+                className="group/tip relative flex shrink-0 flex-col items-center"
                 style={{ width: size + 6 }}
-                onMouseEnter={() => setHovered(appId)}
-                onMouseLeave={() => setHovered(null)}
               >
-                {hovered === appId && !mobile && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4, scale: 0.94 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className="pointer-events-none absolute bottom-[calc(100%+10px)] whitespace-nowrap rounded-md border border-white/25 bg-[#0b1020]/85 px-2 py-0.5 text-[10.5px] font-medium text-white shadow-xl backdrop-blur"
+                {!mobile && (
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute bottom-[calc(100%+9px)] z-10 scale-95 whitespace-nowrap rounded-[7px] border border-white/20 bg-[#0b1020]/90 px-2.5 py-1 text-[10.5px] font-medium text-white opacity-0 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.9)] backdrop-blur-md transition-[opacity,transform] duration-150 group-hover/tip:scale-100 group-hover/tip:opacity-100 group-hover/tip:delay-300 group-focus-within/tip:scale-100 group-focus-within/tip:opacity-100 group-focus-within/tip:delay-150"
                   >
                     {app.label}
-                  </motion.div>
+                    <span className="absolute left-1/2 top-full h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-white/20 bg-[#0b1020]/90" />
+                  </span>
                 )}
                 <motion.button
                   type="button"
@@ -198,7 +195,6 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
                   )}
                   aria-label={running ? `${app.label}, running` : app.label}
                   aria-current={active ? 'true' : undefined}
-                  title={app.label}
                 >
                   {MacIcon ? (
                     <MacIcon className="h-full w-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]" />
