@@ -538,6 +538,16 @@ export function MenuBar() {
                 panel === 'clock' && 'bg-white/[0.16] text-white'
               )}
               aria-label="Date and time"
+              aria-haspopup="dialog"
+              aria-expanded={panel === 'clock'}
+              title={clock.toLocaleString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
             >
               <span className="hidden lg:inline">{dateLabel} </span>
               {timeLabel}
@@ -589,11 +599,20 @@ export function MenuBar() {
                       )
                     })}
                   </div>
-                  <div className="mt-2 border-t border-[var(--stroke)] pt-2 text-[10.5px]">
-                    <p className="font-medium text-fg">
-                      {clock.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </p>
-                    <p className="font-mono text-[var(--fg-faint)]">{clock.toLocaleTimeString()}</p>
+                  <div className="mt-2 flex items-end justify-between gap-2 border-t border-[var(--stroke)] pt-2 text-[10.5px]">
+                    <div>
+                      <p className="font-medium text-fg">
+                        {clock.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      </p>
+                      <p className="font-mono text-[var(--fg-faint)]">{clock.toLocaleTimeString()}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCalendarMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}
+                      className="rounded border border-[var(--stroke)] px-1.5 py-0.5 text-[9.5px] text-muted transition-colors hover:bg-white/10 hover:text-fg"
+                    >
+                      Today
+                    </button>
                   </div>
                 </MenuPanel>
               )}
