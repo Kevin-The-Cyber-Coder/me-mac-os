@@ -6,7 +6,7 @@ import { repo } from '../config/store.js'
 import { asyncHandler, HttpError } from '../utils/errors.js'
 import { validate } from '../middleware/validate.js'
 import { protect, signAccessToken, signRefreshToken, verifyRefreshToken } from '../middleware/auth.js'
-import { authLimiter } from '../middleware/rateLimit.js'
+import { authLimiter, refreshLimiter } from '../middleware/rateLimit.js'
 import {
   loginSchema,
   forgotPasswordSchema,
@@ -76,6 +76,7 @@ router.post(
 
 router.post(
   '/refresh',
+  refreshLimiter,
   asyncHandler(async (req, res) => {
     const token = req.cookies?.kcp_refresh
     if (!token) throw new HttpError(401, 'No refresh session')
