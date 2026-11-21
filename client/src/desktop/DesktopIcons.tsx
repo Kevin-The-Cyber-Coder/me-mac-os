@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import {
   FolderOpen,
   Grid2X2,
@@ -39,13 +39,27 @@ export function DesktopIcons() {
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
-    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight })
+    let frame: number | null = null
+    const sync = () => {
+      frame = null
+      setViewport({ w: window.innerWidth, h: window.innerHeight })
+    }
+    const onResize = () => {
+      if (frame !== null) return
+      frame = window.requestAnimationFrame(sync)
+    }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      if (frame !== null) window.cancelAnimationFrame(frame)
+    }
   }, [])
 
   const cell = CELL[iconSize]
-  const visible = DESKTOP_APPS.filter((id) => !hiddenIcons.includes(id) && !discardedIcons.includes(id))
+  const visible = useMemo(
+    () => DESKTOP_APPS.filter((id) => !hiddenIcons.includes(id) && !discardedIcons.includes(id)),
+    [hiddenIcons, discardedIcons]
+  )
   const rowCount = Math.max(1, Math.ceil(visible.length / COLUMNS))
   // Keep all icons on screen on short displays by tightening the row rhythm.
   const rowStep = Math.min(cell.h, Math.max(cell.h * 0.72, (viewport.h - 178) / rowCount))
@@ -68,6 +82,12 @@ export function DesktopIcons() {
       }
     },
     [autoArrange, cell.h, cell.w, iconPositions, rightMargin, rowStep, viewport.h, viewport.w]
+  )
+
+  // Positions only change when the grid inputs change, not while dragging.
+  const layout = useMemo(
+    () => visible.map((id, index) => ({ id, index, ...positionFor(id, index) })),
+    [positionFor, visible]
   )
 
   const desktopMenu: ContextMenuItem[] = [
@@ -143,7 +163,7 @@ export function DesktopIcons() {
     event.currentTarget.releasePointerCapture?.(event.pointerId)
   }
 
-  const running = new Set(windows.map((win) => win.appId))
+  const running = useMemo(() => new Set(windows.map((win) => win.appId)), [windows])
 
   return (
     <div
@@ -157,9 +177,9 @@ export function DesktopIcons() {
         setMenu({ x: event.clientX, y: event.clientY })
       }}
     >
-      {visible.map((id, index) => {
+      {layout.map(({ id, index, x, y }) => {
         const app = APPS[id]
-        const base = positionFor(id, index)
+        const base = { x, y }
         const active = drag?.id === id ? { x: drag.x, y: drag.y } : base
         const MacIcon = MAC_ICONS[id]
         return (
