@@ -7,6 +7,22 @@
  */
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
+const flushers = new Set<() => void>()
+let flushBound = false
+
+/** Flush any buffered stores before the tab is hidden or discarded. */
+function bindFlushHandlers() {
+  if (flushBound || typeof window === 'undefined') return
+  flushBound = true
+  const flushAll = () => {
+    for (const flush of flushers) flush()
+  }
+  window.addEventListener('pagehide', flushAll)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushAll()
+  })
+}
+
 export function createDebouncedStorage(delay = 150): StorageLike {
   let timer: number | undefined
   let pending: { key: string; value: string } | null = null
@@ -25,6 +41,9 @@ export function createDebouncedStorage(delay = 150): StorageLike {
       /* storage can be full or blocked in private mode */
     }
   }
+
+  flushers.add(flush)
+  bindFlushHandlers()
 
   return {
     getItem: (key) => {
