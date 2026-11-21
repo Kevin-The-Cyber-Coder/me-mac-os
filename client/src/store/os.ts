@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import { createDebouncedStorage } from '../lib/debounced-storage'
 
 export interface WindowRect {
   x: number
@@ -299,6 +300,7 @@ export const useOS = create<OSState>()(
     }),
     {
       name: 'kcp-os',
+      storage: createJSONStorage(() => createDebouncedStorage()),
       partialize: (state) => ({
         windows: state.windows.map((win) => ({ ...win, minimized: false })),
         focusedId: state.focusedId,

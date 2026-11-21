@@ -520,7 +520,14 @@ html.light .menubar-status:hover {
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   color: transparent;
-  transition: color 0.12s ease, filter 0.12s ease;
+  transition: color 0.12s ease, filter 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+.traffic-light:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.traffic-light:active {
+  transform: scale(0.94);
 }
 .traffic-light svg {
   height: 8px;
@@ -531,6 +538,11 @@ html.light .menubar-status:hover {
 .traffic-light:hover svg,
 .traffic-light:focus-visible svg {
   opacity: 1;
+}
+
+.window-shadow,
+.window-shadow-soft {
+  transition: box-shadow 0.22s ease;
 }
 
 .window-shadow-soft {

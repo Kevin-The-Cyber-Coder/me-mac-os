@@ -13,6 +13,10 @@
   "categories": ["portfolio", "developer", "productivity"],
   "lang": "en",
   "dir": "ltr",
+  "launch_handler": { "client_mode": "navigate-existing" },
+  "handle_links": "preferred",
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "/icons/icon.svg",

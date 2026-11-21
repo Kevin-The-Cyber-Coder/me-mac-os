@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronUp } from 'lucide-react'
 import { APPS, DOCK_APPS, type AppId } from './apps'
@@ -18,10 +18,31 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
   const restoreWindow = useOS((state) => state.restoreWindow)
   const { dockSize, dockMagnify, dockAutohide } = useDesktop()
   const [mouseX, setMouseX] = useState<number | null>(null)
-  const [hovered, setHovered] = useState<string | null>(null)
   const [hoverDock, setHoverDock] = useState(false)
   const [showMinimized, setShowMinimized] = useState(false)
+  const [focusIndex, setFocusIndex] = useState(0)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const frameRef = useRef<number | null>(null)
+  const pointerX = useRef(0)
+
+  useEffect(
+    () => () => {
+      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current)
+    },
+    []
+  )
+
+  // Pointer moves fire faster than the display; sample once per frame.
+  const onDockMove = (event: ReactMouseEvent<HTMLElement>) => {
+    if (!magnification) return
+    pointerX.current = event.clientX
+    if (frameRef.current !== null) return
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = null
+      setMouseX(pointerX.current)
+    })
+  }
 
   const minimized = windows.filter((win) => win.minimized)
   const size = mobile ? 46 : dockSize
@@ -98,7 +119,7 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
             : { y: 0, opacity: 1 }
         }
         transition={{ type: 'spring', stiffness: 340, damping: 32 }}
-        onMouseMove={(event) => magnification && setMouseX(event.clientX)}
+        onMouseMove={onDockMove}
         className={cn(
           'pointer-events-auto no-scrollbar flex max-w-[min(97vw,940px)] items-end gap-[3px] overflow-x-auto rounded-[22px] border border-white/25 bg-white/[0.16] px-2 pb-[5px] pt-2 shadow-[0_24px_70px_-18px_rgba(2,6,23,0.85),inset_0_1px_0_rgba(255,255,255,0.28)] backdrop-blur-2xl backdrop-saturate-150 sm:gap-1.5 sm:px-2.5',
           mobile && 'max-w-[100vw] gap-1 rounded-none border-x-0 px-1.5'
@@ -128,32 +149,52 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
                 ref={(node) => {
                   itemRefs.current[index] = node
                 }}
-                className="relative flex shrink-0 flex-col items-center"
+                className="group/tip relative flex shrink-0 flex-col items-center"
                 style={{ width: size + 6 }}
-                onMouseEnter={() => setHovered(appId)}
-                onMouseLeave={() => setHovered(null)}
               >
-                {hovered === appId && !mobile && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4, scale: 0.94 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className="pointer-events-none absolute bottom-[calc(100%+10px)] whitespace-nowrap rounded-md border border-white/25 bg-[#0b1020]/85 px-2 py-0.5 text-[10.5px] font-medium text-white shadow-xl backdrop-blur"
+                {!mobile && (
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute bottom-[calc(100%+9px)] z-10 scale-95 whitespace-nowrap rounded-[7px] border border-white/20 bg-[#0b1020]/90 px-2.5 py-1 text-[10.5px] font-medium text-white opacity-0 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.9)] backdrop-blur-md transition-[opacity,transform] duration-150 group-hover/tip:scale-100 group-hover/tip:opacity-100 group-hover/tip:delay-300 group-focus-within/tip:scale-100 group-focus-within/tip:opacity-100 group-focus-within/tip:delay-150"
                   >
                     {app.label}
-                  </motion.div>
+                    <span className="absolute left-1/2 top-full h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-white/20 bg-[#0b1020]/90" />
+                  </span>
                 )}
                 <motion.button
                   type="button"
+                  ref={(node) => {
+                    buttonRefs.current[index] = node
+                  }}
                   onClick={() => activate(appId)}
+                  onFocus={() => setFocusIndex(index)}
+                  onKeyDown={(event) => {
+                    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
+                    event.preventDefault()
+                    const last = DOCK_ITEMS.length - 1
+                    const next =
+                      event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? last
+                          : event.key === 'ArrowRight'
+                            ? Math.min(last, index + 1)
+                            : Math.max(0, index - 1)
+                    setFocusIndex(next)
+                    const target = buttonRefs.current[next]
+                    target?.focus()
+                    target?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+                  }}
+                  tabIndex={index === focusIndex ? 0 : -1}
                   animate={{ scale, y: -lift }}
                   transition={{ type: 'spring', stiffness: 430, damping: 24, mass: 0.5 }}
                   style={{ width: size, height: size }}
                   className={cn(
-                    'relative grid place-items-center rounded-[16px] transition-[filter,box-shadow] duration-150 hover:brightness-110',
+                    'relative grid place-items-center rounded-[16px] transition-[filter,box-shadow] duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40',
                     active && 'ring-2 ring-white/60 ring-offset-0'
                   )}
-                  aria-label={app.label}
-                  title={app.label}
+                  aria-label={running ? `${app.label}, running` : app.label}
+                  aria-current={active ? 'true' : undefined}
                 >
                   {MacIcon ? (
                     <MacIcon className="h-full w-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]" />
