@@ -276,6 +276,11 @@ export function Spotlight() {
               placeholder="Spotlight Search — apps, projects, articles, skills, GitHub…"
               className="min-w-0 flex-1 bg-transparent text-[15px] text-fg outline-none placeholder:text-[var(--fg-faint)]"
               aria-label="Search everything"
+              role="combobox"
+              aria-expanded={results.length > 0}
+              aria-controls="spotlight-results"
+              aria-autocomplete="list"
+              aria-activedescendant={results[active] ? `spotlight-option-${active}` : undefined}
               autoComplete="off"
               spellCheck={false}
             />
@@ -295,7 +300,7 @@ export function Spotlight() {
             </kbd>
           </div>
 
-          <div className="max-h-[56vh] overflow-y-auto p-2">
+          <div id="spotlight-results" role="listbox" aria-label="Search results" className="max-h-[56vh] overflow-y-auto p-2">
             {results.length === 0 && !loading && (
               <div className="px-3 py-10 text-center">
                 <p className="text-[12.5px] font-medium text-fg">No results for “{query}”</p>
@@ -313,7 +318,11 @@ export function Spotlight() {
                     </p>
                   )}
                   <button
+                    key={result.key}
                     type="button"
+                    id={`spotlight-option-${index}`}
+                    role="option"
+                    aria-selected={active === index}
                     onMouseEnter={() => setActive(index)}
                     onClick={() => runResult(result)}
                     className={cn(

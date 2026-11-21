@@ -36,6 +36,7 @@ export function DesktopIcons() {
   const [viewport, setViewport] = useState({ w: window.innerWidth, h: window.innerHeight })
   const dragRef = useRef(drag)
   dragRef.current = drag
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
     const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight })
@@ -165,6 +166,9 @@ export function DesktopIcons() {
           <button
             key={id}
             type="button"
+            ref={(node) => {
+              itemRefs.current[id] = node
+            }}
             onPointerDown={(event) => startDrag(event, id, base.x, base.y)}
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
@@ -180,11 +184,28 @@ export function DesktopIcons() {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
                 launch(id)
+                return
               }
+              const columns = index < 9 ? COLUMNS : 2
+              let nextIndex = index
+              if (event.key === 'ArrowRight') nextIndex = Math.min(visible.length - 1, index + 1)
+              else if (event.key === 'ArrowLeft') nextIndex = Math.max(0, index - 1)
+              else if (event.key === 'ArrowDown') nextIndex = Math.min(visible.length - 1, index + columns)
+              else if (event.key === 'ArrowUp') nextIndex = Math.max(0, index - columns)
+              else if (event.key === 'Home') nextIndex = 0
+              else if (event.key === 'End') nextIndex = visible.length - 1
+              else return
+              event.preventDefault()
+              const nextId = visible[nextIndex]
+              if (!nextId) return
+              setSelected(nextId)
+              itemRefs.current[nextId]?.focus()
             }}
+            onFocus={() => setSelected(id)}
+            tabIndex={selected === id || (!selected && index === 0) ? 0 : -1}
             aria-label={`${app.label} — double click to open`}
             className={cn(
-              'group absolute flex flex-col items-center gap-[3px] rounded-[7px] px-1 pb-1 pt-0.5 text-center outline-none transition-colors',
+              'group absolute flex flex-col items-center gap-[3px] rounded-[7px] px-1 pb-1 pt-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40',
               drag?.id === id ? 'cursor-grabbing' : 'cursor-default',
               selected === id && 'bg-white/[0.14] ring-1 ring-white/25'
             )}

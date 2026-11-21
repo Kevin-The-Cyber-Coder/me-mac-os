@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { Suspense, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, Maximize2, Minimize2, Minus, X } from 'lucide-react'
 import { APPS, BARE_APPS, type AppId } from './apps'
@@ -31,6 +31,9 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
   const setRect = useOS((s) => s.setRect)
   const [dragging, setDragging] = useState(false)
   const [resizing, setResizing] = useState(false)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
+  const focusedOnce = useRef(false)
   const gesture = useRef<{
     pointerId: number
     startX: number
@@ -38,6 +41,26 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
     rect: WindowRect
     handle?: Handle
   } | null>(null)
+
+  // Remember what opened this window so focus can return there on close.
+  useEffect(() => {
+    const opener = document.activeElement
+    openerRef.current = opener instanceof HTMLElement ? opener : null
+    return () => {
+      const target = openerRef.current
+      if (!target?.isConnected) return
+      const active = document.activeElement
+      if (active && active !== document.body) return
+      target.focus({ preventScroll: true })
+    }
+  }, [])
+
+  // Move focus into a newly opened window without stealing it on later clicks.
+  useEffect(() => {
+    if (focusedOnce.current || !focused || win.minimized) return
+    focusedOnce.current = true
+    sectionRef.current?.focus({ preventScroll: true })
+  }, [focused, win.minimized])
 
   if (!app) return null
 
@@ -134,6 +157,8 @@ export function AppWindow({ win, focused }: { win: OSWindow; focused: boolean })
 
   return (
     <motion.section
+      ref={sectionRef}
+      tabIndex={-1}
       role="dialog"
       aria-label={win.title}
       aria-modal={false}
