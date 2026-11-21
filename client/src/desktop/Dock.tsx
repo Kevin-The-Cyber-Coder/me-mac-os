@@ -21,7 +21,9 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
   const [hovered, setHovered] = useState<string | null>(null)
   const [hoverDock, setHoverDock] = useState(false)
   const [showMinimized, setShowMinimized] = useState(false)
+  const [focusIndex, setFocusIndex] = useState(0)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   const minimized = windows.filter((win) => win.minimized)
   const size = mobile ? 46 : dockSize
@@ -144,15 +146,38 @@ export function Dock({ mobile = false }: { mobile?: boolean }) {
                 )}
                 <motion.button
                   type="button"
+                  ref={(node) => {
+                    buttonRefs.current[index] = node
+                  }}
                   onClick={() => activate(appId)}
+                  onFocus={() => setFocusIndex(index)}
+                  onKeyDown={(event) => {
+                    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
+                    event.preventDefault()
+                    const last = DOCK_ITEMS.length - 1
+                    const next =
+                      event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? last
+                          : event.key === 'ArrowRight'
+                            ? Math.min(last, index + 1)
+                            : Math.max(0, index - 1)
+                    setFocusIndex(next)
+                    const target = buttonRefs.current[next]
+                    target?.focus()
+                    target?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+                  }}
+                  tabIndex={index === focusIndex ? 0 : -1}
                   animate={{ scale, y: -lift }}
                   transition={{ type: 'spring', stiffness: 430, damping: 24, mass: 0.5 }}
                   style={{ width: size, height: size }}
                   className={cn(
-                    'relative grid place-items-center rounded-[16px] transition-[filter,box-shadow] duration-150 hover:brightness-110',
+                    'relative grid place-items-center rounded-[16px] transition-[filter,box-shadow] duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40',
                     active && 'ring-2 ring-white/60 ring-offset-0'
                   )}
-                  aria-label={app.label}
+                  aria-label={running ? `${app.label}, running` : app.label}
+                  aria-current={active ? 'true' : undefined}
                   title={app.label}
                 >
                   {MacIcon ? (
