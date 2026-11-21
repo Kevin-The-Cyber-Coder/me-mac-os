@@ -76,3 +76,26 @@ export const env = {
 
   analyticsSalt: process.env.ANALYTICS_SALT || 'dev-analytics-salt',
 }
+
+/**
+ * Production must never boot with the documented development defaults.
+ * Only the variable names are reported so no secret value can leak into logs.
+ */
+const PLACEHOLDER_SECRET = /^(dev-|change-me)|change-me$/i
+
+export const insecureDefaults = [
+  ['JWT_ACCESS_SECRET', env.accessSecret],
+  ['JWT_REFRESH_SECRET', env.refreshSecret],
+  ['SETTINGS_SECRET', env.settingsSecret],
+  ['ANALYTICS_SALT', env.analyticsSalt],
+  ['ADMIN_PASSWORD', env.admin.password],
+]
+  .filter(([, value]) => PLACEHOLDER_SECRET.test(String(value)) || String(value).length < 24)
+  .map(([name]) => name)
+
+if (env.isProd && insecureDefaults.length > 0) {
+  throw new Error(
+    `Refusing to start in production with placeholder secrets: ${insecureDefaults.join(', ')}. ` +
+      'Set each variable to a unique random value of at least 24 characters.'
+  )
+}
