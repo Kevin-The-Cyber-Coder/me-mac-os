@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +13,7 @@ import { dbState } from './config/db.js'
 import { repo } from './config/store.js'
 import { globalLimiter } from './middleware/rateLimit.js'
 import { notFoundHandler, errorHandler } from './middleware/error.js'
+import { HttpError } from './utils/errors.js'
 import { uploadDir } from './middleware/upload.js'
 import authRoutes from './routes/auth.js'
 import publicRoutes from './routes/public.js'
@@ -29,11 +31,22 @@ export function createApp() {
   app.set('trust proxy', 1)
   app.disable('x-powered-by')
 
+  // Correlate a client-visible response with the server log line.
+  app.use((req, res, next) => {
+    req.id = crypto.randomUUID()
+    res.setHeader('X-Request-Id', req.id)
+    next()
+  })
+
   app.use(
     helmet({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      frameguard: { action: 'deny' },
+      noSniff: true,
+      hsts: env.isProd ? { maxAge: 31_536_000, includeSubDomains: true, preload: true } : false,
     })
   )
 
@@ -50,7 +63,17 @@ export function createApp() {
     })
   )
 
-  app.use(express.json({ limit: '6mb' }))
+  const jsonBody = express.json({ limit: '6mb' })
+  // body-parser errors are not HttpErrors, so translate them before the
+  // central handler sees them and they turn into generic 500s.
+  app.use((req, res, next) => {
+    jsonBody(req, res, (error) => {
+      if (!error) return next()
+      if (error.type === 'entity.too.large') return next(new HttpError(413, 'Request body is too large'))
+      if (error.type === 'entity.parse.failed') return next(new HttpError(400, 'Malformed JSON body'))
+      return next(error)
+    })
+  })
   app.use(express.urlencoded({ extended: true, limit: '1mb' }))
   app.use(cookieParser())
   app.use(compression())
@@ -58,6 +81,10 @@ export function createApp() {
 
   app.use('/uploads', express.static(uploadDir, { maxAge: '7d', fallthrough: true }))
   app.use('/api', globalLimiter)
+  app.use('/api', (_req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
 
   app.get('/api/health', (_req, res) => {
     res.json({
