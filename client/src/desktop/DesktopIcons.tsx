@@ -39,9 +39,20 @@ export function DesktopIcons() {
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
-    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight })
+    let frame: number | null = null
+    const sync = () => {
+      frame = null
+      setViewport({ w: window.innerWidth, h: window.innerHeight })
+    }
+    const onResize = () => {
+      if (frame !== null) return
+      frame = window.requestAnimationFrame(sync)
+    }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      if (frame !== null) window.cancelAnimationFrame(frame)
+    }
   }, [])
 
   const cell = CELL[iconSize]
